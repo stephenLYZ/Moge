@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "a game engine",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "ramda": "^0.25.0"
+  },
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
