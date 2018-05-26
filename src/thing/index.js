@@ -9,6 +9,10 @@ export default class Thing {
     this._move = options.move
   }
 
+  set orientation (value) {
+    this._move.orientation = value
+  }
+
   move (time) {
     if (!this._move) return
 

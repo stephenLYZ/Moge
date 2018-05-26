@@ -14,7 +14,8 @@ function randomInt (num) {
 function randomThing () {
   const shape = new shapes[randomInt(2)]({ color: colors[randomInt(7)] })
   const position = { x: Math.random() * (400 - shape.width), y: 0 }
-  const move = new Move({ orientation: 'down', speed: 200 })
+  const orientation = 270
+  const move = new Move({ orientation, speed: 200 })
   const thing = new Thing({ position, shape, move })
 
   return thing
@@ -24,7 +25,8 @@ window.onload = () => {
   const scene = new Scene({ width: 400, height: 500 })
   scene.build()
 
-  scene.add(randomThing())
+  let currentThing = randomThing()
+  scene.add(currentThing)
 
   document.body.appendChild(scene.domNode)
 
@@ -32,13 +34,34 @@ window.onload = () => {
 
   const finished = {}
   scene.on('edge', ({ target }) => {
-    console.log(target)
     if (finished[target.id]) {
       return
     }
     
+    target.orientation = 270
     finished[target.id] = true
-    scene.add(randomThing())
+    currentThing = randomThing()
+    scene.add(currentThing)
+  })
+
+  window.addEventListener('keydown', (evt) => {
+    switch (evt.which) {
+      case 37:
+        currentThing.orientation = 240
+        break;
+      case 39:
+        currentThing.orientation = 300
+        break;
+    }
+  })
+
+  window.addEventListener('keyup', (evt) => {
+    switch (evt.which) {
+      case 37:
+      case 39:
+        currentThing.orientation = 270
+        break;
+    }
   })
 
   const fps = document.createElement('span')
