@@ -7,6 +7,10 @@ class DomScene {
     this.borderWidth = 1
     this.rowCount = this.height / this.pixelSize
     this.colCount = this.width / this.pixelSize
+
+    this.things = []
+
+    this.frames = []
   }
 
   build () {
@@ -47,22 +51,69 @@ class DomScene {
     }
   }
 
-  render (pos, shape) {
+  add (thing) {
+    this.things.push(thing)
+  }
 
+  startLoop () {
+    if (!this.timer) {
+      this.timer = setInterval(() => {
+        this.loop()
+      }, 50)
+    }
+  }
+
+  stopLoop () {
+    clearInterval(this.timer)
+  }
+
+  loop () {
+    const time = +new Date()
+
+    if (this.prevLoopTime) {
+      const deltaTime = time - this.prevLoopTime
+      this.things.forEach((thing) => {
+        if (thing.moveable) {
+          this.clear(thing.position, thing.shape)
+        }
+        thing.move(deltaTime)
+      })
+    }
+    this.prevLoopTime = time
+
+    this.things.forEach((thing) => {
+      this.render(thing.position, thing.shape)
+    })
+
+    if (this.frames.length > 10) {
+      this.frames.shift()
+    }
+    this.frames.push(time)
+  }
+
+  get fps () {
+    return this.frames.length / ((this.frames[this.frames.length - 1] - this.frames[0]) / 1000)
+  }
+
+  clear (pos, shape) {
+    this.render(pos, shape, 'transparent')
+  }
+
+  render (pos, shape, forceColor) {
     let { x, y } = pos
-    x = x / this.pixelSize
-    y = y / this.pixelSize
+    x = Math.round(x / this.pixelSize)
+    y = Math.round(y / this.pixelSize)
 
     const points = shape.toPoints(this.pixelSize)
 
     points.forEach((row, rowIndex) => {
       row.forEach((color, colIndex) => {
         const cell = this.cells[y + rowIndex][x + colIndex]
-        cell.style.background = color
+        cell.style.background = forceColor || color
       })
     })
-
   }
+
 }
 
 export default DomScene
