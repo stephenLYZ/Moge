@@ -1,6 +1,9 @@
+let id = 0
+
 export default class Thing {
 
   constructor (options) {
+    this.id = id++
     this.position = options.position
     this.shape = options.shape
     this._move = options.move

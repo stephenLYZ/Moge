@@ -1,6 +1,7 @@
 table {
   border-collapse: collapse;
-  margin: auto
+  margin: auto;
+  border: 1px solid #eee;
 }
 
 td {

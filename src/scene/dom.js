@@ -1,16 +1,20 @@
-class DomScene {
+import EventEmitter from 'eventemitter3'
+
+class DomScene extends EventEmitter {
 
   constructor (options) {
+    super()
     this.width = options.width
     this.height = options.height
     this.pixelSize = 10
-    this.borderWidth = 1
+    this.borderWidth = 0
     this.rowCount = this.height / this.pixelSize
     this.colCount = this.width / this.pixelSize
 
     this.things = []
 
     this.frames = []
+    this.emitted = {}
   }
 
   build () {
@@ -59,7 +63,7 @@ class DomScene {
     if (!this.timer) {
       this.timer = setInterval(() => {
         this.loop()
-      }, 50)
+      }, 30)
     }
   }
 
@@ -71,24 +75,43 @@ class DomScene {
     const time = +new Date()
 
     if (this.prevLoopTime) {
+      // 移动物体
       const deltaTime = time - this.prevLoopTime
       this.things.forEach((thing) => {
         if (thing.moveable) {
+          // 清除原来的渲染
           this.clear(thing.position, thing.shape)
+          thing.move(deltaTime)
         }
-        thing.move(deltaTime)
       })
     }
-    this.prevLoopTime = time
 
+    // 检测碰撞
+    this.things.forEach((thing) => {
+      const { position: { x, y}, shape: { width, height } } = thing
+      if (y + height > this.height) {
+        thing.position.y = this.height - height
+      }
+      if (!this.emitted[thing.id]) {
+        if (thing.position.y + height === this.height) {
+          this.emit('edge', { which: 'bottom', target: thing })
+          this.emitted[thing.id] = true
+        }
+      }
+    })
+
+    // 渲染物体
     this.things.forEach((thing) => {
       this.render(thing.position, thing.shape)
     })
 
+    // fps 统计
     if (this.frames.length > 10) {
       this.frames.shift()
     }
     this.frames.push(time)
+
+    this.prevLoopTime = time
   }
 
   get fps () {
@@ -108,6 +131,10 @@ class DomScene {
 
     points.forEach((row, rowIndex) => {
       row.forEach((color, colIndex) => {
+        if (color === 'transparent') {
+          return
+        }
+
         const cell = this.cells[y + rowIndex][x + colIndex]
         cell.style.background = forceColor || color
       })
