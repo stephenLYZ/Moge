@@ -2,17 +2,17 @@ import Scene from '../../scene/dom'
 import { Rectangle } from '../../shape'
 import Thing from '../../thing'
 import Move from '../../move'
-import { Seven, Tian } from './shapes'
+import { Seven, Tian, Stick } from './shapes'
 
 const colors = ['green', 'blue', 'red', 'pink', 'yellow', 'orange', 'gray']
-const shapes = [Seven, Tian]
+const shapes = [Seven, Tian, Stick]
 
 function randomInt (num) {
   return Math.floor(Math.random() * num)
 }
 
 function randomThing () {
-  const shape = new shapes[randomInt(2)]({ color: colors[randomInt(7)] })
+  const shape = new shapes[randomInt(shapes.length)]({ color: colors[randomInt(colors.length)] })
   const position = { x: Math.random() * (400 - shape.width), y: 0 }
   const orientation = 270
   const move = new Move({ orientation, speed: 200 })
@@ -47,11 +47,14 @@ window.onload = () => {
   window.addEventListener('keydown', (evt) => {
     switch (evt.which) {
       case 37:
-        currentThing.orientation = 240
-        break;
+        currentThing.orientation = 210
+        break
       case 39:
-        currentThing.orientation = 300
-        break;
+        currentThing.orientation = 330
+        break
+      case 40:
+        currentThing.speed = 10000000000
+        break
     }
   })
 

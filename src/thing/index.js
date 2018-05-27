@@ -13,6 +13,10 @@ export default class Thing {
     this._move.orientation = value
   }
 
+  set speed (value) {
+    this._move.speed = value
+  }
+
   move (time) {
     if (!this._move) return
 

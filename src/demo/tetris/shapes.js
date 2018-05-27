@@ -36,4 +36,14 @@ class Tian extends Rectangle {
 
 }
 
-export { Seven, Tian }
+class Stick extends Rectangle {
+
+  constructor (options) {
+    super(options)
+    this.width = 20
+    this.height = 80
+  }
+
+}
+
+export { Seven, Tian, Stick }
