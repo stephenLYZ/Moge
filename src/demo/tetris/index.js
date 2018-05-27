@@ -2,10 +2,10 @@ import Scene from '../../scene/dom'
 import { Rectangle } from '../../shape'
 import Thing from '../../thing'
 import Move from '../../move'
-import { Seven, Tian, Stick } from './shapes'
+import { Seven, Tian, Stick, Zaid, Dust } from './shapes'
 
-const colors = ['green', 'blue', 'red', 'pink', 'yellow', 'orange', 'gray']
-const shapes = [Seven, Tian, Stick]
+const colors = ['green', 'blue', 'red', 'pink', 'yellow', 'orange']
+const shapes = [Seven, Tian, Stick, Zaid, Dust]
 
 function randomInt (num) {
   return Math.floor(Math.random() * num)

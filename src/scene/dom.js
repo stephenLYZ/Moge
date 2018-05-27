@@ -119,10 +119,10 @@ class DomScene extends EventEmitter {
   }
 
   clear (pos, shape) {
-    this.render(pos, shape, 'transparent')
+    this.render(pos, shape, true)
   }
 
-  render (pos, shape, forceColor) {
+  render (pos, shape, clear = false) {
     let { x, y } = pos
     x = Math.round(x / this.pixelSize)
     y = Math.round(y / this.pixelSize)
@@ -136,7 +136,13 @@ class DomScene extends EventEmitter {
         }
 
         const cell = this.cells[y + rowIndex][x + colIndex]
-        cell.style.background = forceColor || color
+        if (clear) {
+          cell.style.background = 'transparent'
+          cell.style.border = 0
+        } else {
+          cell.style.background = color
+          cell.style.border = '1px solid gray'
+        }
       })
     })
   }
