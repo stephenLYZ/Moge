@@ -6,7 +6,7 @@ class DomScene extends EventEmitter {
     super()
     this.width = options.width
     this.height = options.height
-    this.pixelSize = 10
+    this.pixelSize = options.pixelSize || 20
     this.borderWidth = 0
     this.rowCount = this.height / this.pixelSize
     this.colCount = this.width / this.pixelSize
