@@ -6,27 +6,46 @@ export default class Thing {
     this.id = id++
     this.position = options.position
     this.shape = options.shape
-    this.move = options.move
+    this.mover = options.move
     this.prevPosition = this.position
     this.prevShape = this.shape
   }
 
   set orientation (value) {
-    this.move.orientation = value
+    this.mover.orientation = value
   }
 
   set speed (value) {
-    this.move.speed = value
+    this.mover.speed = value
   }
 
   move (time) {
-    if (!this.move) return
+    if (!this.mover) return
 
-    const position = this.move.exec(time, this.position)
+    const position = this.mover.exec(time, this.position)
     this.prevPosition = this.position
     this.position = position
 
-    return position
+    this.checkEdge()
+  }
+
+  checkEdge () {
+    // 检测碰撞
+    const { position: { x, y}, shape: { width, height } } = this
+    if (y + height > this._scene.height) {
+      this.position.y = this._scene.height - height
+    }
+    if (x + width > this._scene.width) {
+      this.position.x = this.width - width
+    } else if (x < 0) {
+      this.position.x = 0
+    }
+    if (!this.reachEdge) {
+      if (this.position.y + height === this._scene.height) {
+        this._scene.emit('edge', { which: 'bottom', target: this })
+        this.reachEdge = true
+      }
+    }
   }
 
   update (time) {
@@ -34,6 +53,6 @@ export default class Thing {
   }
 
   get moveable () {
-    return !!this.move
+    return !!this.mover
   }
 }

@@ -75,18 +75,13 @@ class DomScene extends EventEmitter {
   loop () {
     const time = +new Date()
 
-    if (this.prevLoopTime) {
-      // 移动物体
-      const deltaTime = time - this.prevLoopTime
-      this.things.forEach((thing) => {
-        thing.update(deltaTime)
-        // 清除原来的渲染
-        this.clear(thing.prevPosition, thing.prevShape)
-      })
-    }
-
     // 渲染物体
     this.things.forEach((thing) => {
+      // 移动物体
+      const deltaTime = this.prevLoopTime ? time - this.prevLoopTime : 0
+      thing.update(deltaTime)
+      // 清除原来的渲染
+      this.clear(thing.prevPosition, thing.prevShape)
       this.render(thing.position, thing.shape)
     })
 

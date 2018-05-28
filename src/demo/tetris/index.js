@@ -12,11 +12,6 @@ class Tetris extends Thing {
     super(options)
   }
 
-  update () {
-    super.update()
-    
-  }
-
   collide() {
     const { x, y } = this.position
     const { width, height } = this.shape
