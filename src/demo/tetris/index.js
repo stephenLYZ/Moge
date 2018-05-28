@@ -19,8 +19,6 @@ class Tetris extends Thing {
   }
 
   update (time) {
-    super.update(time)
-
     this.prevShape = this.shape
 
     if (this.rotation) {
@@ -28,6 +26,7 @@ class Tetris extends Thing {
       this.shape = new RotateShape({ shape: this.shape.shape, rotation })
       this.rotation = 0
     }
+    super.update(time)
   }
 
 }

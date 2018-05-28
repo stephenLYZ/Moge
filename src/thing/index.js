@@ -9,6 +9,7 @@ export default class Thing {
     this.mover = options.move
     this.prevPosition = this.position
     this.prevShape = this.shape
+    this.collied = false
   }
 
   set orientation (value) {
@@ -38,7 +39,7 @@ export default class Thing {
   }
 
   checkCollide () {
-    let collied = false
+    this.collied = false
 
     let { collideThing, direction } = this._scene.collideX(this)
     if (collideThing) {
@@ -46,7 +47,8 @@ export default class Thing {
         case 'right':
         case 'left':
           this.position.x = this.prevPosition.x
-          collied = true
+          this.shape = this.prevShape
+          this.collied = true
           break
       }     
     }
@@ -57,12 +59,13 @@ export default class Thing {
       switch(collideY.direction) {
         case 'down':
           this.position.y = this.prevPosition.y
-          collied = true
+          this.shape = this.prevShape
+          this.collied = true
           break
       }     
     }
 
-    if (collied) {
+    if (this.collied) {
       this._scene.emit('collide', { which: direction, target: this })
     }
   }
