@@ -11,8 +11,8 @@ class DomScene extends EventEmitter {
     this.rowCount = this.height / this.pixelSize
     this.colCount = this.width / this.pixelSize
 
+    this.thingMap = {}
     this.things = []
-
     this.frames = []
     this.build()
   }
@@ -39,11 +39,11 @@ class DomScene extends EventEmitter {
           cell.setAttribute('height', this.pixelSize)
           cell.setAttribute('row', i)
           cell.setAttribute('col', j)
+          cell.setAttribute('tid', 0)
           cell.style.borderWidth = this.borderWidth
 
           rowCells.push(cell)
           row.appendChild(cell)
-
         }
 
         cells.push(rowCells)
@@ -52,12 +52,14 @@ class DomScene extends EventEmitter {
 
       this.domNode = table
       this.cells = cells
+      this.comfort = cells
     }
   }
 
   add (thing) {
     thing._scene = this
     this.things.push(thing)
+    this.thingMap[thing.id] = thing
   }
 
   startLoop () {
@@ -81,8 +83,8 @@ class DomScene extends EventEmitter {
       const deltaTime = this.prevLoopTime ? time - this.prevLoopTime : 0
       thing.update(deltaTime)
       // 清除原来的渲染
-      this.clear(thing.prevPosition, thing.prevShape)
-      this.render(thing.position, thing.shape)
+      this.clear(thing)
+      this.render(thing)
     })
 
     // fps 统计
@@ -98,15 +100,45 @@ class DomScene extends EventEmitter {
     return this.frames.length / ((this.frames[this.frames.length - 1] - this.frames[0]) / 1000)
   }
 
-  clear (pos, shape) {
-    this.render(pos, shape, true)
+  clear (thing) {
+    this.render(thing, true)
   }
 
   collide (thing) {
-    
+    const { position: { x, y }, shape: { width, height } } = thing
+    const points = thing.shape.toPoints(this.pixelSize)
+    let collideThing, direction
+    points.forEach((row, rowIndex) => {
+      row.forEach((color, colIndex) => {
+        if (color === 'transparent') {
+          return
+        }
+
+        const cell = this.cells[Math.round(y / this.pixelSize) + rowIndex][Math.round(x / this.pixelSize) + colIndex]
+        const tid = +cell.getAttribute('tid')
+        const col = +cell.getAttribute('col')
+        const row = +cell.getAttribute('row')
+        if (tid && tid !== thing.id) {
+          collideThing = this.thingMap[tid]
+          if (col > Math.round(thing.prevPosition.x / this.pixelSize)) {
+            direction = 'right'
+          } else if (col < Math.round(thing.prevPosition.x / this.pixelSize)) {
+            direction = 'left'
+          }
+          if (row > Math.round(thing.prevPosition.y / this.pixelSize)) {
+            direction = 'down'
+          } else if (row < Math.round(thing.prevPosition.y / this.pixelSize)) {
+            direction = 'up'
+          } 
+        }
+      })
+    })
+    return {collideThing, direction}
   }
 
-  render (pos, shape, clear = false) {
+  render (thing, clear = false) {
+    const pos = clear ? thing.prevPosition : thing.position
+    const shape = clear ? thing.prevShape : thing.shape
     let { x, y } = pos
     x = Math.round(x / this.pixelSize)
     y = Math.round(y / this.pixelSize)
@@ -123,9 +155,11 @@ class DomScene extends EventEmitter {
         if (clear) {
           cell.style.background = 'transparent'
           cell.style.border = 0
+          cell.setAttribute('tid', 0)
         } else {
           cell.style.background = color
           cell.style.border = '1px solid gray'
+          cell.setAttribute('tid', thing.id)
         }
       })
     })

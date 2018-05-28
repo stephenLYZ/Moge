@@ -12,25 +12,42 @@ class Tetris extends Thing {
     super(options)
   }
 
-  collide() {
-    const { x, y } = this.position
-    const { width, height } = this.shape
+  update (time) {
+    super.update(time)
+    this.checkEdge()
+    let { thing, direction } = this._scene.collide(this)
+    if (thing) {
+      console.log(thing, direction)
+      switch(direction) {
+        case 'right':
+        case 'left':
+          this.position.x = this.prevPosition.x
+          break
+        case 'down':
+          this.position = this.prevPosition
+          this.speed = 0
+          break
+        default:
+      }     
+      this._scene.emit('collide', { which: 'thing', target: this })
+    }
+  }
+
+  checkEdge () {
+    // 检测碰撞
+    const { position: { x, y}, shape: { width, height } } = this
     if (y + height > this._scene.height) {
       this.position.y = this._scene.height - height
     }
-    if (!this._scene.emitted[thing.id]) {
-      const points = thing.shape.toPoints(this.pixelSize)
-      points.forEach((row, rowIndex) => {
-        row.forEach((color, colIndex) => {           
-          const cell = this.status[Math.round(y / this.pixelSize) + rowIndex][Math.round(x / this.pixelSize) + colIndex]
-            if (cell.style.background && cell.style.background != 'transparent') {
-              console.log('booom!')
-            }
-        })
-      })
-      if (thing.position.y + height === this.height) {
-        this.emit('edge', { which: 'bottom', target: thing })
-        this.emitted[thing.id] = true
+    if (x + width > this._scene.width) {
+      this.position.x = this._scene.width - width
+    } else if (x < 0) {
+      this.position.x = 0
+    }
+    if (!this.reachEdge) {
+      if (this.position.y + height === this._scene.height) {
+        this._scene.emit('collide', { which: 'edge', target: this })
+        this.reachEdge = true
       }
     }
   }
@@ -59,7 +76,7 @@ window.onload = () => {
   scene.startLoop()
 
   const finished = {}
-  scene.on('edge', ({ target }) => {
+  scene.on('collide', ({ target }) => {
     if (finished[target.id]) {
       return
     }
