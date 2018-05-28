@@ -2,7 +2,7 @@ import Scene from '../../scene/dom'
 import { Rectangle } from '../../shape'
 import Thing from '../../thing'
 import Move from '../../move'
-import { Seven, Tian, Stick, Zaid, Dust } from './shapes'
+import { RotateShape, Seven, Tian, Stick, Zaid, Dust } from './shapes'
 
 const colors = ['green', 'blue', 'red', 'pink', 'yellow', 'orange']
 const shapes = [Seven, Tian, Stick, Zaid, Dust]
@@ -10,6 +10,24 @@ const shapes = [Seven, Tian, Stick, Zaid, Dust]
 class Tetris extends Thing {
   constructor (options) {
     super(options)
+
+    this.rotation = 0
+  }
+
+  rotate () {
+    this.rotation += 1
+  }
+
+  update (time) {
+    super.update(time)
+
+    this.prevShape = this.shape
+
+    if (this.rotation) {
+      const rotation = this.rotation + this.shape.rotation
+      this.shape = new RotateShape({ shape: this.shape.shape, rotation })
+      this.rotation = 0
+    }
   }
 
 }
@@ -20,9 +38,10 @@ function randomInt (num) {
 
 function randomTetris () {
   const shape = new shapes[randomInt(shapes.length)]({ color: colors[randomInt(colors.length)] })
+  const rotateShape = new RotateShape({ shape })
   const position = { x: Math.random() * (400 - shape.width), y: 0 }
   const move = new Move({ orientation: 270, speed: 200 })
-  const tetris = new Tetris({ position, shape, move })
+  const tetris = new Tetris({ position, shape: rotateShape, move })
   return tetris
 }
 
@@ -59,6 +78,9 @@ window.onload = () => {
       case 40:
         currentTetris.speed = 10000000000
         break
+      case 38:
+        currentTetris.rotate()
+        break
     }
   })
 
@@ -67,7 +89,7 @@ window.onload = () => {
       case 37:
       case 39:
         currentTetris.orientation = 270
-        break;
+        break
     }
   })
 

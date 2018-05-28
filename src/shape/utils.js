@@ -36,4 +36,18 @@ function offset (points, position) {
   return newPoints
 }
 
-export { merge, offset }
+function rotate (points) {
+  const rowCount = points.length
+  const colCount = points[0].length
+
+  const newPoints = R.map(() => [], R.range(0, colCount))
+  points.forEach((row, rowIndex) => {
+    row.forEach((value, colIndex) => {
+      newPoints[colIndex][rowCount - rowIndex - 1] = value
+    })
+  })
+
+  return newPoints
+}
+
+export { merge, offset, rotate }

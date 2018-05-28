@@ -1,5 +1,34 @@
 import { Shape, Rectangle } from '../../shape'
-import { merge, offset } from '../../shape/utils'
+import { merge, offset, rotate } from '../../shape/utils'
+import * as R from 'ramda'
+
+class RotateShape extends Shape {
+  
+  constructor (options) {
+    super(options)
+    this.shape = options.shape
+    this.color = options.shape.color
+    this.rotation = options.rotation || 0
+
+    if (this.rotation % 2 === 1) {
+      this.height = options.shape.width
+      this.width = options.shape.height
+    } else {
+      this.width = options.shape.width
+      this.height = options.shape.height
+    }
+  }
+
+  toPoints (pixelSize) {
+    let points = this.shape.toPoints(pixelSize)
+
+    R.forEach(() => {
+      points = rotate(points)
+    }, R.range(0, this.rotation))
+
+    return points
+  }
+}
 
 class Seven extends Shape {
 
@@ -91,4 +120,4 @@ class Dust extends Shape {
   }
 }
 
-export { Seven, Tian, Stick, Zaid, Dust }
+export { RotateShape, Seven, Tian, Stick, Zaid, Dust }
