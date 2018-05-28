@@ -36,7 +36,7 @@ export default class Thing {
       this.position.y = this._scene.height - height
     }
     if (x + width > this._scene.width) {
-      this.position.x = this.width - width
+      this.position.x = this._scene.width - width
     } else if (x < 0) {
       this.position.x = 0
     }
