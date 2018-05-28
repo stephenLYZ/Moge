@@ -31,6 +31,8 @@ class Tetris extends Thing {
       this.rotation = 0
     }
 
+    super.update(time)
+
     if (this.disappeared.length) {
       this.prevShape = _.cloneDeep(this.shape)
 
@@ -77,8 +79,7 @@ window.onload = () => {
 
   document.body.appendChild(scene.domNode)
 
-  scene.startLoop()
-
+  // scene.startLoop()
   const finished = {}
   scene.on('collide', ({ which, target }) => {
     if (finished[target.id] || which !== 'down') {
@@ -146,4 +147,12 @@ window.onload = () => {
     fps.innerText = 'fps: ' + scene.fps
   }, 1000)
   document.body.appendChild(fps)
+
+  const button = document.createElement('button')
+  button.innerHTML = '开始游戏'
+  button.addEventListener('click', () => {
+    scene.startLoop()
+    button.style.display = "none"
+  })
+  document.body.appendChild(button)
 }

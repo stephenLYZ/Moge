@@ -7,3 +7,10 @@ table {
 td {
   border: 1px solid #eee;
 }
+
+button {
+  position: absolute;
+  top:  300px;
+  left: 50%;
+  transform: translateX(-50%);
+}
