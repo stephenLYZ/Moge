@@ -15,9 +15,8 @@ class Tetris extends Thing {
   update (time) {
     super.update(time)
     this.checkEdge()
-    let { thing, direction } = this._scene.collide(this)
-    if (thing) {
-      console.log(thing, direction)
+    let { collideThing, direction } = this._scene.collide(this)
+    if (collideThing) {
       switch(direction) {
         case 'right':
         case 'left':
