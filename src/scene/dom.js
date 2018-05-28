@@ -62,6 +62,10 @@ class DomScene extends EventEmitter {
     this.thingMap[thing.id] = thing
   }
 
+  get (id) {
+    return this.thingMap[id]
+  }
+
   startLoop () {
     if (!this.timer) {
       this.timer = setInterval(() => {
@@ -147,15 +151,15 @@ class DomScene extends EventEmitter {
           return
         }
 
-        const cell = this.cells[Math.round(prevY / this.pixelSize) + rowIndex][Math.round(x / this.pixelSize) + colIndex]
+        const cell = this.cells[this.toIndex(prevY) + rowIndex][this.toIndex(x) + colIndex]
         const tid = +cell.getAttribute('tid')
         const col = +cell.getAttribute('col')
         const row = +cell.getAttribute('row')
         if (tid && tid !== thing.id) {
           collideThing = this.thingMap[tid]
-          if (col > Math.round(thing.prevPosition.x / this.pixelSize)) {
+          if (col > this.toIndex(thing.prevPosition.x)) {
             direction = 'right'
-          } else if (col < Math.round(thing.prevPosition.x / this.pixelSize)) {
+          } else if (col < this.toIndex(thing.prevPosition.x)) {
             direction = 'left'
           }
         }
@@ -163,6 +167,10 @@ class DomScene extends EventEmitter {
     })
 
     return {collideThing, direction}
+  }
+
+  toIndex (value) {
+    return Math.round(value / this.pixelSize)
   }
 
   render (thing, clear = false) {
@@ -182,7 +190,7 @@ class DomScene extends EventEmitter {
 
         const cell = this.cells[y + rowIndex][x + colIndex]
         if (clear) {
-          cell.style.background = 'transparent'
+          cell.style.background = null
           cell.style.border = 0
           cell.setAttribute('tid', 0)
         } else {

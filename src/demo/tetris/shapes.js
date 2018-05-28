@@ -9,6 +9,7 @@ class RotateShape extends Shape {
     this.shape = options.shape
     this.color = options.shape.color
     this.rotation = options.rotation || 0
+    this.disappeared = []
 
     if (this.rotation % 2 === 1) {
       this.height = options.shape.width
@@ -17,16 +18,35 @@ class RotateShape extends Shape {
       this.width = options.shape.width
       this.height = options.shape.height
     }
+
+    this.rowCount = this.height / this.pixelSize
   }
 
   toPoints (pixelSize) {
+    // 原来的形状
     let points = this.shape.toPoints(pixelSize)
 
+    // 翻转后的形状
     R.forEach(() => {
       points = rotate(points)
     }, R.range(0, this.rotation))
 
+    // 减去消除的部分
+    let index = this.rowCount - 1
+    while (index >= 0) {
+      if (this.disappeared.indexOf(index) > -1) {
+        points.splice(index, 1)
+      }
+
+      index -= 1
+    }
+
     return points
+  }
+
+  disappear (index, pixelSize) {
+    this.height -= pixelSize
+    this.disappeared.push(index)
   }
 }
 

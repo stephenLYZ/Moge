@@ -6,6 +6,7 @@ class Shape {
     this.width = options.width
     this.height = options.height
     this.color = options.color || defaultColor
+    this.pixelSize = options.pixelSize || 20
   }
 
   toPoints (pixelSize) {
