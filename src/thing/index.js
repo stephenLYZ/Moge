@@ -6,25 +6,34 @@ export default class Thing {
     this.id = id++
     this.position = options.position
     this.shape = options.shape
-    this._move = options.move
+    this.move = options.move
+    this.prevPosition = this.position
+    this.prevShape = this.shape
   }
 
   set orientation (value) {
-    this._move.orientation = value
+    this.move.orientation = value
   }
 
   set speed (value) {
-    this._move.speed = value
+    this.move.speed = value
   }
 
   move (time) {
-    if (!this._move) return
+    if (!this.move) return
 
-    const position = this._move.exec(time, this.position)
+    const position = this.move.exec(time, this.position)
+    this.prevPosition = this.position
     this.position = position
+
+    return position
+  }
+
+  update (time) {
+    this.move(time)
   }
 
   get moveable () {
-    return !!this._move
+    return !!this.move
   }
 }

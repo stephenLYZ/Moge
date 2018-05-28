@@ -14,7 +14,7 @@ class DomScene extends EventEmitter {
     this.things = []
 
     this.frames = []
-    this.emitted = {}
+    this.build()
   }
 
   build () {
@@ -56,6 +56,7 @@ class DomScene extends EventEmitter {
   }
 
   add (thing) {
+    thing._scene = this
     this.things.push(thing)
   }
 
@@ -78,27 +79,11 @@ class DomScene extends EventEmitter {
       // 移动物体
       const deltaTime = time - this.prevLoopTime
       this.things.forEach((thing) => {
-        if (thing.moveable) {
-          // 清除原来的渲染
-          this.clear(thing.position, thing.shape)
-          thing.move(deltaTime)
-        }
+        thing.update(deltaTime)
+        // 清除原来的渲染
+        this.clear(thing.prevPosition, thing.prevShape)
       })
     }
-
-    // 检测碰撞
-    this.things.forEach((thing) => {
-      const { position: { x, y}, shape: { width, height } } = thing
-      if (y + height > this.height) {
-        thing.position.y = this.height - height
-      }
-      if (!this.emitted[thing.id]) {
-        if (thing.position.y + height === this.height) {
-          this.emit('edge', { which: 'bottom', target: thing })
-          this.emitted[thing.id] = true
-        }
-      }
-    })
 
     // 渲染物体
     this.things.forEach((thing) => {
@@ -120,6 +105,10 @@ class DomScene extends EventEmitter {
 
   clear (pos, shape) {
     this.render(pos, shape, true)
+  }
+
+  collide (thing) {
+    
   }
 
   render (pos, shape, clear = false) {
@@ -146,7 +135,6 @@ class DomScene extends EventEmitter {
       })
     })
   }
-
 }
 
 export default DomScene
