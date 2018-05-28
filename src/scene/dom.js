@@ -15,6 +15,8 @@ class DomScene extends EventEmitter {
     this.things = []
     this.frames = []
     this.build()
+
+    this.paused = false
   }
 
   build () {
@@ -62,6 +64,11 @@ class DomScene extends EventEmitter {
     this.thingMap[thing.id] = thing
   }
 
+  remove (thing) {
+    this.things = _.without(this.things, [thing])
+    delete this.thingMap[thing.id]
+  }
+
   get (id) {
     return this.thingMap[id]
   }
@@ -78,24 +85,35 @@ class DomScene extends EventEmitter {
     clearInterval(this.timer)
   }
 
+  pause () {
+    this.paused = !this.paused
+  }
+
   loop () {
     const time = +new Date()
 
-    // 渲染物体
-    this.things.forEach((thing) => {
-      // 移动物体
-      const deltaTime = this.prevLoopTime ? time - this.prevLoopTime : 0
-      thing.update(deltaTime)
-      // 清除原来的渲染
-      this.clear(thing)
-      this.render(thing)
-    })
+    if (!this.paused) {
+      try {
+        // 渲染物体
+        this.things.forEach((thing) => {
+          // 移动物体
+          const deltaTime = this.prevLoopTime ? time - this.prevLoopTime : 0
+          thing.update(deltaTime)
+          // 清除原来的渲染
+          this.clear(thing)
+          this.render(thing)
+        })
+      } catch (err) {
+        console.error(err)
+        this.paused = true
+      }
 
-    // fps 统计
-    if (this.frames.length > 10) {
-      this.frames.shift()
+      // fps 统计
+      if (this.frames.length > 10) {
+        this.frames.shift()
+      }
+      this.frames.push(time)
     }
-    this.frames.push(time)
 
     this.prevLoopTime = time
   }
@@ -188,7 +206,14 @@ class DomScene extends EventEmitter {
           return
         }
 
-        const cell = this.cells[y + rowIndex][x + colIndex]
+        const cell = _.get(this.cells, `[${y + rowIndex}][${x + colIndex}]`)
+        if (!cell) {
+          if (points.length === 0) {
+            return
+          }
+          console.log('IndexOutOfBound: ', thing, y, rowIndex, x, colIndex)
+          throw new Error()
+        }
         if (clear) {
           cell.style.background = null
           cell.style.border = 0

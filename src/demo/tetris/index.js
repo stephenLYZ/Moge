@@ -16,6 +16,8 @@ class Tetris extends Thing {
 
     this.rotation = 0
     this.disappeared = []
+
+    this.moveDownCount = 0
   }
 
   rotate () {
@@ -23,7 +25,7 @@ class Tetris extends Thing {
   }
 
   update (time) {
-    this.prevShape = this.shape
+    this.prevShape = _.cloneDeep(this.shape)
 
     if (this.rotation) {
       const rotation = this.rotation + this.shape.rotation
@@ -34,16 +36,26 @@ class Tetris extends Thing {
     super.update(time)
 
     if (this.disappeared.length) {
-      this.prevShape = _.cloneDeep(this.shape)
-
-      this.disappeared.forEach((index) => {
+      this.disappeared.map((index) => {
+        this.shape.disappeared.forEach((item) => {
+          if (index >= item) {
+            index += 1
+          }
+        })
+        return index
+      }).forEach((index) => {
         this.shape.disappear(index, this._scene.pixelSize)
       })
 
-      this.prevPosition = _.clone(this.position)
       this.position.y += this.shape.pixelSize * this.disappeared.length
 
       this.disappeared = []
+    }
+
+    if (this.moveDownCount > 0) {
+      this.position.y += this.shape.pixelSize * this.moveDownCount
+
+      this.moveDownCount = 0
     }
   }
 
@@ -56,25 +68,31 @@ class Tetris extends Thing {
     this.disappeared.push(index)
   }
 
+  moveDown () {
+    this.moveDownCount += 1
+  }
+
 }
 
 function randomInt (num) {
   return Math.floor(Math.random() * num)
 }
 
-function randomTetris () {
+function randomTetris (sceneWidth, pixelSize) {
   const shape = new shapes[randomInt(shapes.length)]({ color: colors[randomInt(colors.length)] })
-  const rotateShape = new RotateShape({ shape, pixelSize: 20 })
-  const position = { x: Math.random() * (400 - shape.width), y: 0 }
+  const rotateShape = new RotateShape({ shape, pixelSize })
+  const position = { x: Math.random() * (sceneWidth - shape.width), y: 0 }
   const move = new Move({ orientation: 270, speed: 200 })
   const tetris = new Tetris({ position, shape: rotateShape, move })
   return tetris
 }
 
 window.onload = () => {
-  const scene = new Scene({ width: 400, height: 500 })
+  const pixelSize = 20
+  const scene = new Scene({ width: 200, height: 500, pixelSize })
+  window.scene = scene
 
-  let currentTetris = randomTetris()
+  let currentTetris = randomTetris(scene.width, pixelSize)
   scene.add(currentTetris)
 
   document.body.appendChild(scene.domNode)
@@ -87,12 +105,13 @@ window.onload = () => {
     }
 
     target.orientation = 270
+    target.speed = 0
     finished[target.id] = true
 
     // scene.things.forEach((thing) => {
+    //   thing.disappear(23)
     //   thing.disappear(24)
     // })
-    // currentTetris.disappear(24)
     // 检测消除
     const rowStart = scene.toIndex(target.position.y)
     const rowLength = scene.toIndex(target.shape.height)
@@ -108,11 +127,19 @@ window.onload = () => {
           R.map((id) => scene.get(id)),
           R.forEach((thing) => thing.disappear(rowIndex))
         )(filled)
+
+        // 将所有上层 thing 往下位移
+        scene.things.forEach((thing) => {
+          const endRow = scene.toIndex(thing.position.y) + scene.toIndex(thing.shape.height) - 1
+          if (endRow < rowIndex) {
+            thing.moveDown()
+          }
+        })
       }
     }, R.range(0, rowLength))
 
     // 降落新的方块
-    currentTetris = randomTetris()
+    currentTetris = randomTetris(scene.width, pixelSize)
     scene.add(currentTetris)
   })
 
@@ -125,7 +152,8 @@ window.onload = () => {
         currentTetris.orientation = 330
         break
       case 40:
-        currentTetris.speed = 10000000000
+        // currentTetris.speed = 10000000000
+        scene.pause()
         break
       case 38:
         currentTetris.rotate()
@@ -155,4 +183,11 @@ window.onload = () => {
     button.style.display = "none"
   })
   document.body.appendChild(button)
+
+  // const pause = document.createElement('button')
+  // pause.innerText = 'pause'
+  // pause.addEventListener('click', () => {
+  //   scene.pause()
+  // })
+  // document.body.appendChild(pause)
 }

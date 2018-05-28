@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 let id = 1
 
 export default class Thing {
@@ -23,9 +25,9 @@ export default class Thing {
   move (time) {
     if (!this.mover) return
 
-    const position = this.mover.exec(time, this.position)
-    this.prevPosition = this.position
-    this.position = position
+    this.prevPosition = _.clone(this.position)
+
+    this.position = this.mover.exec(time, this.position)
   }
 
   get moveable () {
@@ -47,7 +49,7 @@ export default class Thing {
         case 'right':
         case 'left':
           this.position.x = this.prevPosition.x
-          this.shape = this.prevShape
+          this.shape = _.cloneDeep(this.prevShape)
           this.collied = true
           break
       }     
@@ -59,7 +61,7 @@ export default class Thing {
       switch(collideY.direction) {
         case 'down':
           this.position.y = this.prevPosition.y
-          this.shape = this.prevShape
+          this.shape = _.cloneDeep(this.prevShape)
           this.collied = true
           break
       }     

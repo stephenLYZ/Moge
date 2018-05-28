@@ -47,6 +47,7 @@ class RotateShape extends Shape {
   disappear (index, pixelSize) {
     this.height -= pixelSize
     this.disappeared.push(index)
+    this.disappeared.sort()
   }
 }
 
