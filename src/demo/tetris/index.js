@@ -15,20 +15,33 @@ class Tetris extends Thing {
   update (time) {
     super.update(time)
     this.checkEdge()
-    let { collideThing, direction } = this._scene.collide(this)
+
+    let collied = false
+
+    let { collideThing, direction } = this._scene.collideX(this)
     if (collideThing) {
       switch(direction) {
         case 'right':
         case 'left':
           this.position.x = this.prevPosition.x
+          collied = true
           break
-        case 'down':
-          this.position = this.prevPosition
-          this.speed = 0
-          break
-        default:
       }     
-      this._scene.emit('collide', { which: 'thing', target: this })
+    }
+
+    let collideY = this._scene.collideY(this)
+    if (collideY.collideThing) {
+      direction = collideY.direction
+      switch(collideY.direction) {
+        case 'down':
+          this.position.y = this.prevPosition.y
+          collied = true
+          break
+      }     
+    }
+
+    if (collied) {
+      this._scene.emit('collide', { which: direction, target: this })
     }
   }
 
@@ -45,7 +58,7 @@ class Tetris extends Thing {
     }
     if (!this.reachEdge) {
       if (this.position.y + height === this._scene.height) {
-        this._scene.emit('collide', { which: 'edge', target: this })
+        this._scene.emit('collide', { which: 'down', target: this })
         this.reachEdge = true
       }
     }
@@ -75,8 +88,8 @@ window.onload = () => {
   scene.startLoop()
 
   const finished = {}
-  scene.on('collide', ({ target }) => {
-    if (finished[target.id]) {
+  scene.on('collide', ({ which, target }) => {
+    if (finished[target.id] || which !== 'down') {
       return
     }
     

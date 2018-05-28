@@ -104,7 +104,7 @@ class DomScene extends EventEmitter {
     this.render(thing, true)
   }
 
-  collide (thing) {
+  collideY (thing) {
     const { position: { x, y }, shape: { width, height } } = thing
     const points = thing.shape.toPoints(this.pixelSize)
     let collideThing, direction
@@ -120,11 +120,6 @@ class DomScene extends EventEmitter {
         const row = +cell.getAttribute('row')
         if (tid && tid !== thing.id) {
           collideThing = this.thingMap[tid]
-          if (col > Math.round(thing.prevPosition.x / this.pixelSize)) {
-            direction = 'right'
-          } else if (col < Math.round(thing.prevPosition.x / this.pixelSize)) {
-            direction = 'left'
-          }
           if (row > Math.round(thing.prevPosition.y / this.pixelSize)) {
             direction = 'down'
           } else if (row < Math.round(thing.prevPosition.y / this.pixelSize)) {
@@ -133,6 +128,40 @@ class DomScene extends EventEmitter {
         }
       })
     })
+
+    return {collideThing, direction}
+  }
+
+  collideX (thing) {
+    if (!thing.prevPosition) {
+      return {}
+    }
+
+    const { position: { x, y }, shape: { width, height } } = thing
+    const { y: prevY } = thing.prevPosition
+    const points = thing.shape.toPoints(this.pixelSize)
+    let collideThing, direction
+    points.forEach((row, rowIndex) => {
+      row.forEach((color, colIndex) => {
+        if (color === 'transparent') {
+          return
+        }
+
+        const cell = this.cells[Math.round(prevY / this.pixelSize) + rowIndex][Math.round(x / this.pixelSize) + colIndex]
+        const tid = +cell.getAttribute('tid')
+        const col = +cell.getAttribute('col')
+        const row = +cell.getAttribute('row')
+        if (tid && tid !== thing.id) {
+          collideThing = this.thingMap[tid]
+          if (col > Math.round(thing.prevPosition.x / this.pixelSize)) {
+            direction = 'right'
+          } else if (col < Math.round(thing.prevPosition.x / this.pixelSize)) {
+            direction = 'left'
+          }
+        }
+      })
+    })
+
     return {collideThing, direction}
   }
 
