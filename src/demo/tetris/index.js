@@ -97,12 +97,17 @@ window.onload = () => {
 
   document.body.appendChild(scene.domNode)
 
+  let $score = document.createElement('div')
+  let score = 0;
+  $score.innerHTML = '当前分数:' + score
+  document.body.appendChild($score)
   // scene.startLoop()
   const finished = {}
   scene.on('collide', ({ which, target }) => {
     if (finished[target.id] || which !== 'down') {
       return
     }
+    let lineCount = 0
 
     target.orientation = 270
     target.speed = 0
@@ -121,6 +126,7 @@ window.onload = () => {
       console.log(scene.toIndex(scene.width), filled.length)
       if (filled.length === scene.colCount) {
         console.log('bang!', rowIndex)
+        lineCount++
         R.pipe(
           R.map((cell) => +cell.getAttribute('tid')),
           R.uniq,
@@ -138,9 +144,24 @@ window.onload = () => {
       }
     }, R.range(0, rowLength))
 
-    // 降落新的方块
-    currentTetris = randomTetris(scene.width, pixelSize)
-    scene.add(currentTetris)
+    // 得分
+    score += lineCount * 200
+    $score.innerHTML = '当前分数:' + score
+
+    // 游戏结束判断
+    if (scene.cells[0].some((cell) => {
+      if (+cell.getAttribute('tid')) return true
+    })) {
+      scene.pause()
+      scene.things.forEach((thing) => {
+        scene.clear(thing)
+      })
+      alert('游戏结束')
+    } else {
+      // 降落新的方块
+      currentTetris = randomTetris(scene.width, pixelSize)
+      scene.add(currentTetris)
+    }
   })
 
   window.addEventListener('keydown', (evt) => {
@@ -170,7 +191,7 @@ window.onload = () => {
     }
   })
 
-  const fps = document.createElement('span')
+  const fps = document.createElement('div')
   setInterval(() => {
     fps.innerText = 'fps: ' + scene.fps
   }, 1000)
