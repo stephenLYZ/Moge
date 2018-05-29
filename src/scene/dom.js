@@ -7,7 +7,7 @@ class DomScene extends EventEmitter {
     this.width = options.width
     this.height = options.height
     this.pixelSize = options.pixelSize || 20
-    this.borderWidth = 0
+    this.borderWidth = 1
     this.rowCount = this.height / this.pixelSize
     this.colCount = this.width / this.pixelSize
 
@@ -216,11 +216,10 @@ class DomScene extends EventEmitter {
         }
         if (clear) {
           cell.style.background = null
-          cell.style.border = 0
           cell.setAttribute('tid', 0)
         } else {
           cell.style.background = color
-          cell.style.border = '1px solid gray'
+          // cell.style.border = '1px solid gray'
           cell.setAttribute('tid', thing.id)
         }
       })
