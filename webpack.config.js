@@ -1,10 +1,10 @@
 const path = require('path')
 module.exports = {
   devtool: 'source-map',
-  entry: './src/demo/tetris/index.js',
+  entry: './src/index.js',
   output: {
     path: __dirname + '/dists',
-    filename: 'tetris.bundle.js'
+    filename: 'moge.bundle.js'
   },
   module: {
     loaders: [
