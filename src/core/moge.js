@@ -4,9 +4,6 @@ import DomRenderer from '../renderers/dom'
 import TableRenderer from '../renderers/table'
 
 class Moge {
-  static get Version() {
-    return '0.0.1'
-  }
   static get Plugins() {
     return undefined
   }
@@ -95,7 +92,7 @@ class Moge {
     }
 
     let lagOffset = this._lag / this._frameDuration
-    this.renderer.render(lagOffset)
+    this.renderer.render(this.stage, lagOffset)
   }
 
   capturePreviousSpritePositions() {
@@ -131,6 +128,8 @@ class Moge {
     }
     return renderer
   }
+
+  
 
   remove() {
 

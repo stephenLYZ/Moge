@@ -1,6 +1,6 @@
 import { byLayer } from '../helpers'
 
-export default class createObject {
+export default class BaseObject {
   constructor() {
     this.x = 0
     this.y = 0
@@ -14,8 +14,12 @@ export default class createObject {
     this.scaleX = 1
     this.scaleY = 1
 
+    this.pivotX = 0.5;
+    this.pivotY = 0.5;
+
     this.rotation = 0
     this.visible = true
+    this.mask = false
 
     this.parent = undefined
 
@@ -31,8 +35,6 @@ export default class createObject {
     this._draggable = undefined
 
     this._layer = 0
-    this._circular = false
-    this._interactive = false
     this._previousX = undefined
     this._previousY = undefined
     this.children = []
@@ -135,6 +137,20 @@ export default class createObject {
     }
   }
 
+  // render in different renderers
+  canvasRender() {
+    
+  }
+
+  domRender() {
+
+  }
+
+  tableRender() {
+
+  }
+
+  // getter/setter
   get gx() {
     if (this.parent) {
       return this.x + this.parent.gx
@@ -189,22 +205,6 @@ export default class createObject {
   set layer(value) {
     this._layer = value
     this.parent.children.sort(byLayer)
-  }
-
-  get circular() {
-    return this._circular
-  }
-
-  set circular(value) {
-
-  }
-
-  get interactive() {
-    return this._interactive
-  }
-
-  set interactive(value) {
-
   }
 
   get draggable() {
