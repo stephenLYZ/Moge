@@ -2,6 +2,8 @@ import Stage from '../sprites/stage'
 import CanvasRenderer from '../renderers/canvas'
 import DomRenderer from '../renderers/dom'
 import TableRenderer from '../renderers/table'
+import State from './state'
+import Loader from './loader'
 
 class Moge {
   static get Plugins() {
@@ -10,8 +12,9 @@ class Moge {
   static get Custom() {
     return undefined
   }
-  constructor(width=50, height=50, renderer='canvas', setup, assetsToLoad, load) {
-    this.state = undefined
+  constructor(width=50, height=50, renderer='canvas', assetFilePaths) {
+    this.state = new State()
+    this.loader = new Loader()
 
     this.buttons = []
     this.pause = false
@@ -28,9 +31,8 @@ class Moge {
     this.domRenderer = new DomRenderer(width, height)
     this.tableRenderer = new TableRenderer(width, height)
     this.renderer = this.createRenderer(renderer)
-    this.setup = setup
-    this.load = load
-    this.assetFilePaths = assetsToLoad
+    this.assetFilePaths = assetFilePaths
+
     this.interpolate = true
     this.scale = 1
     
@@ -41,19 +43,22 @@ class Moge {
   }
 
   start() {
+    if (!this.state.stateMap.setup) {
+      throw new Error('Please supply the setup state function')
+    }
     if (this.assetFilePaths) {
-      this.assets.whenLoaded = () => {
-        this.state = undefined
-        this.setup()
-      };
-      this.assets.load(this.assetFilePaths)
-      if (this.load) {
-        this.state = this.load
+      this.loader.loadedFunction = () => {
+        this.state.currentState = undefined
+        this.state.start('setup')
+      }
+      this.loader.load(this.assetFilePaths)
+      if (this.state.stateMap.load) {
+        this.state.start('load')
       }
     } else {
-      this.setup()
+      this.state.start('setup')
     }
-
+    
     //Start the game loop
     gameLoop();
   }
@@ -67,8 +72,8 @@ class Moge {
   }
 
   update() {
-    if (this.state && !this.pause) {
-      this.state()
+    if (this.state.currentState && !this.pause) {
+      this.state.stateMap[this.state.currentState].call(this)
     }
     if (this.updateFunctions.length !== 0) {
       for (let l = 0; l < this.updateFunctions.length; l++) {
