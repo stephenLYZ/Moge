@@ -1,9 +1,16 @@
-import Stage from '../sprites/stage'
 import CanvasRenderer from '../renderers/canvas'
 import DomRenderer from '../renderers/dom'
 import TableRenderer from '../renderers/table'
 import State from './state'
 import Loader from './loader'
+import {
+  Circle,
+  Rectangle,
+  Line,
+  Text,
+  Group,
+  Stage
+} from '../sprites/index'
 
 class Moge {
   static get Plugins() {
@@ -39,8 +46,10 @@ class Moge {
 
     this.updateFunctions = []
 
+    // stage is the parent of all the other sprites and groups.
     this.stage = new Stage()
   }
+
 
   start() {
     if (!this.state.stateMap.setup) {
@@ -134,6 +143,35 @@ class Moge {
     return renderer
   }
 
+  circle(radius, fillStyle, strokeStyle, lineWidth, x, y) {
+    let circle = new Circle(radius, fillStyle, strokeStyle, lineWidth, x, y)
+    this.stage.addChild(circle)
+    return circle
+  }
+
+  rectangle(width, height, fillStyle, strokeStyle, lineWidth, x, y) {
+    let rectangle = new Rectangle(width, height, fillStyle, strokeStyle, lineWidth, x, y)
+    this.stage.addChild(rectangle)
+    return rectangle
+  }
+
+  line(strokeStyle, lineWidth, x1, y1, x2, y2) {
+    let line = new Line(strokeStyle, lineWidth, x1, y1, x2, y2)
+    this.stage.addChild(line)
+    return line
+  }
+
+  text(content, font, fillStyle, x, y) {
+    let text = new Text(content, font, fillStyle, x, y)
+    this.stage.addChild(text)
+    return text
+  }
+
+  group(...sprites) {
+    let group = new Group(sprites)
+    this.stage.addChild(group)
+    return group
+  }
   
 
   remove() {

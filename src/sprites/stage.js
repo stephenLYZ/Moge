@@ -10,8 +10,4 @@ export default class Stage extends baseObject {
     this.y = 0
     this.parent = undefined
   }
-
-  canvasRender(ctx) {
-    
-  }
 }

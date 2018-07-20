@@ -58,7 +58,7 @@ export default class Loader {
     if (this.toLoad === this.loaded) {
       this.toLoad = 0
       this.loaded = 0
-      this.loadedFunction()
+      this.loadedFunction && this.loadedFunction()
     }
   }
 }
