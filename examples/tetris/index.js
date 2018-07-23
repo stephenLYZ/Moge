@@ -1,0 +1,3 @@
+
+
+let mo = new Moge()

@@ -3,6 +3,7 @@ import DomRenderer from '../renderers/dom'
 import TableRenderer from '../renderers/table'
 import State from './state'
 import Loader from './loader'
+import Keyboard from './keyboard'
 import {
   Circle,
   Rectangle,
@@ -22,6 +23,7 @@ class Moge {
   constructor(width=50, height=50, renderer='canvas', assetFilePaths) {
     this.state = new State()
     this.loader = new Loader()
+    this.keyboard = new Keyboard()
 
     this.buttons = []
     this.pause = false
