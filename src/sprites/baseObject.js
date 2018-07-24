@@ -138,7 +138,7 @@ export default class BaseObject {
   }
 
   // render in different renderers
-  canvasRender() {
+  canvasRender(ctx) {
     
   }
 

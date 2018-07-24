@@ -4,6 +4,7 @@ import TableRenderer from '../renderers/table'
 import State from './state'
 import Loader from './loader'
 import Keyboard from './keyboard'
+import Collision from './collision'
 import {
   Circle,
   Rectangle,
@@ -14,16 +15,10 @@ import {
 } from '../sprites/index'
 
 class Moge {
-  static get Plugins() {
-    return undefined
-  }
-  static get Custom() {
-    return undefined
-  }
   constructor(width=50, height=50, renderer='canvas', assetFilePaths) {
     this.state = new State()
     this.loader = new Loader()
-    this.keyboard = new Keyboard()
+    // this.keyboard = new Keyboard()
 
     this.buttons = []
     this.pause = false
