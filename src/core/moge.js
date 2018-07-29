@@ -45,6 +45,8 @@ class Moge {
 
     // stage is the parent of all the other sprites and groups.
     this.stage = new Stage()
+
+    this.gameLoop = this.gameLoop.bind(this)
   }
 
 
@@ -66,7 +68,7 @@ class Moge {
     }
     
     //Start the game loop
-    gameLoop();
+    this.gameLoop();
   }
 
   pause() {
@@ -89,7 +91,7 @@ class Moge {
   }
 
   gameLoop() {
-    requestAnimationFrame(gameLoop)
+    requestAnimationFrame(this.gameLoop)
     let current = Date.now()
     let elapsed = current - this._startTime
     if (elapsed > 1000) elapsed = this._frameDuration;

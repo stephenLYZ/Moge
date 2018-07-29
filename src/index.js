@@ -1,3 +1,3 @@
 import Moge from './core/moge'
 
-window.Moge = Moge
+export default Moge
