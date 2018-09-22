@@ -4,6 +4,7 @@ const pkg = require('../package.json')
 
 const baseConfig = {
   mode: 'development',
+  devtool: 'cheap-module-eval-source-map',
   context: path.resolve(__dirname, '..'),
   entry: {
     'moge.js': './src/index.js',

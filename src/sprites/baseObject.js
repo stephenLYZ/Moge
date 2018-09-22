@@ -1,6 +1,7 @@
 import { byLayer } from '../helpers'
+import { makeInteractived } from '../hoc/interactive'
 
-export default class BaseObject {
+class Base {
   constructor() {
     this.x = 0
     this.y = 0
@@ -22,7 +23,6 @@ export default class BaseObject {
     this.mask = false
 
     this.parent = undefined
-
     this.isStage = false
 
     this.shadow = false
@@ -139,15 +139,11 @@ export default class BaseObject {
 
   // render in different renderers
   canvasRender(ctx) {
-    
+    // canvas
   }
 
   domRender() {
-
-  }
-
-  tableRender() {
-
+    // dom
   }
 
   // getter/setter
@@ -241,3 +237,5 @@ export default class BaseObject {
     }
   }
 }
+
+export default makeInteractived(Base)

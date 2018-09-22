@@ -1,6 +1,3 @@
-# 查看 demo
+# Moge
 
-    npm i
-    webpack
-
-    open public/tetris/index.html
+> Yet another game engine

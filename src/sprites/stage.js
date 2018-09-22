@@ -1,6 +1,6 @@
-import baseObject from './baseObject'
+import BaseObject from './baseObject'
 
-export default class Stage extends baseObject {
+export default class Stage extends BaseObject {
   constructor(width, height) {
     super()
     this.isStage = true

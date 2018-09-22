@@ -5,19 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>hello world</title>
-  <script src="../dist/moge.js"></script>
+  <script src="../../dist/moge.js"></script>
 </head>
 <body>
   <script>
-    let moge = new Moge(256, 256)
-    moge.state.add('setup', function() {
+    let m = new Moge(256, 256)
+    m.state.add('setup', function() {
       console.log('setup')
-      moge.state.start('play')
+      m.state.start('play')
     })
-    moge.state.add('play', function() {
+    m.state.add('play', function() {
       console.log('play')
     })
-    moge.start()
+    m.start()
   </script>
 </body>
 </html>

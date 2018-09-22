@@ -1,41 +1,38 @@
 import CanvasRenderer from '../renderers/canvas'
 import DomRenderer from '../renderers/dom'
-import TableRenderer from '../renderers/table'
 import State from './state'
 import Loader from './loader'
 import Keyboard from './keyboard'
-import Collision from './collision'
+import Pointer from './pointer'
+import Collision from '../plugins/collision'
+import Utils from '../plugins/utils'
 import {
   Circle,
   Rectangle,
   Line,
   Text,
   Group,
-  Stage
-} from '../sprites/index'
+  Stage,
+  Sprite
+} from '../sprites'
+import { interactiveObjects } from '../hoc/interactive'
 
 class Moge {
-  constructor(width=50, height=50, renderer='canvas', assetFilePaths) {
-    this.state = new State()
-    this.loader = new Loader()
-    // this.keyboard = new Keyboard()
-
-    this.buttons = []
+  constructor(width=50, height=50, assets, renderer='canvas') {
+    this.width = width
+    this.height = height
     this.pause = false
     this.draggableSprites = []
     this.dragAndDrop = false
     this.tweens = []
 
-    this._fps = 60
-    this._startTime = Date.now()
-    this._frameDuration = 1000 / this._fps
-    this._lag = 0
+    this.fps = 60
+    this.startTime = Date.now()
+    this.frameDuration = 1000 / this.fps
+    this.lag = 0
 
-    this.canvasRenderer = new CanvasRenderer(width, height)
-    this.domRenderer = new DomRenderer(width, height)
-    this.tableRenderer = new TableRenderer(width, height)
     this.renderer = this.createRenderer(renderer)
-    this.assetFilePaths = assetFilePaths
+    this.assets = assets
 
     this.interpolate = true
     this.scale = 1
@@ -43,8 +40,16 @@ class Moge {
 
     this.updateFunctions = []
 
+    this.state = new State()
+    this.loader = new Loader()
+    this.pointer = new Pointer(this)
+    // this.keyboard = new Keyboard()
+
     // stage is the parent of all the other sprites and groups.
-    this.stage = new Stage()
+    this.stage = new Stage(width, height)
+
+    // plugins
+    this.utils = new Utils()
 
     this.gameLoop = this.gameLoop.bind(this)
   }
@@ -54,21 +59,20 @@ class Moge {
     if (!this.state.stateMap.setup) {
       throw new Error('Please supply the setup state function')
     }
-    if (this.assetFilePaths) {
+    if (this.assets) {
       this.loader.loadedFunction = () => {
         this.state.currentState = undefined
         this.state.start('setup')
       }
-      this.loader.load(this.assetFilePaths)
+      this.loader.load(this.assets)
       if (this.state.stateMap.load) {
         this.state.start('load')
       }
     } else {
       this.state.start('setup')
     }
-    
-    //Start the game loop
-    this.gameLoop();
+
+    this.gameLoop()
   }
 
   pause() {
@@ -80,6 +84,11 @@ class Moge {
   }
 
   update() {
+    if (interactiveObjects.length > 0) {
+      interactiveObjects.map((o) => {
+        o.update(this.pointer, this.renderer)
+      })
+    }
     if (this.state.currentState && !this.pause) {
       this.state.stateMap[this.state.currentState].call(this)
     }
@@ -93,18 +102,18 @@ class Moge {
   gameLoop() {
     requestAnimationFrame(this.gameLoop)
     let current = Date.now()
-    let elapsed = current - this._startTime
-    if (elapsed > 1000) elapsed = this._frameDuration;
-    this._startTime = current
-    this._lag += elapsed
+    let elapsed = current - this.startTime
+    if (elapsed > 1000) elapsed = this.frameDuration
+    this.startTime = current
+    this.lag += elapsed
 
-    while(this._lag >= this._frameDuration) {
+    while(this.lag >= this.frameDuration) {
       this.capturePreviousSpritePositions()
       this.update()
-      this._lag -= this._frameDuration
+      this.lag -= this.frameDuration
     }
 
-    let lagOffset = this._lag / this._frameDuration
+    let lagOffset = this.lag / this.frameDuration
     this.renderer.render(this.stage, lagOffset)
   }
 
@@ -114,12 +123,12 @@ class Moge {
     })
 
     function setPosition(sprite) {
-      sprite._previousX = sprite.x;
-      sprite._previousY = sprite.y;
+      sprite._previousX = sprite.x
+      sprite._previousY = sprite.y
       if (sprite.children && sprite.children.length > 0) {
         sprite.children.forEach((child) => {
-          setPosition(child);
-        });
+          setPosition(child)
+        })
       }
     }
   }
@@ -128,13 +137,10 @@ class Moge {
     let renderer
     switch(r) {
       case 'canvas':
-        renderer = this.canvasRenderer
+        renderer = new CanvasRenderer(this.width, this.height)
         break
       case 'dom':
-        renderer = this.domRenderer
-        break
-      case 'table':
-        renderer = this.tableRenderer
+        renderer = new DomRenderer(this.width, this.height)
         break
       default: 
         throw new Error('no such this renderer!')
@@ -171,10 +177,64 @@ class Moge {
     this.stage.addChild(group)
     return group
   }
+
+  sprite(source, w, h) {
+    let sprite = new Sprite(source, this.loader, w, h)
+    this.stage.addChild(sprite)
+    return sprite
+  }
   
+  frame(source, x, y, width, height) {
+    return {
+      image: source,
+      x,
+      y,
+      width,
+      height
+    }
+  }
 
-  remove() {
+  frames(source, arrayOfPositions, width, height) {
+    return {
+      image: source,
+      data: arrayOfPositions,
+      width,
+      height
+    }
+  }
 
+  filmstrip(imageName, frameWidth, frameHeight, spacing) {
+    const image = this.loader.assets[imageName].source
+    const positions = []
+    const columns = image.width / frameWidth
+    const rows = image.height / frameHeight
+    const numberOfFrames = columns * rows
+
+    for (var i = 0; i < numberOfFrames; i++) {
+
+      let x, y
+      x = (i % columns) * frameWidth
+      y = Math.floor(i / columns) * frameHeight
+
+      if (spacing && spacing > 0) {
+        x += spacing + (spacing * i % columns)
+        y += spacing + (spacing * Math.floor(i / columns))
+      }
+      positions.push([x, y])
+    }
+
+    return this.frames(imageName, positions, frameWidth, frameHeight)
+  }
+
+  remove(spritesToRemove) {
+    if (Array.isArray(spritesToRemove)) {
+      spritesToRemove.map((sprite) => {
+        sprite.parent.removeChild(sprite)
+        spritesToRemove.splice(spritesToRemove.indexOf(sprite), 1)
+      })
+    } else {
+      spritesToRemove.parent.removeChild(spritesToRemove)
+    }
   }
 }
 

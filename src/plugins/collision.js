@@ -230,4 +230,8 @@ export default class Collision {
       return collision
     }
   }
+
+  hitTestCirclePoint() {
+    
+  }
 } 

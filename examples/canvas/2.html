@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>hello world</title>
+  <script src="../../dist/moge.js"></script>
+</head>
+<body>
+  <script>
+    let m = new Moge(
+      256, 
+      256,
+      {
+        'platforms': "../images/platforms.png",
+        'rocket': "../images/rocket.png",
+        'puzzler': "../fonts/puzzler.otf",
+        'PetMe64': "../fonts/PetMe64.ttf",
+      }
+    )
+    let box, ball, message, pointerDisplay, line, rocket, starFrame, star
+    m.state.add('setup', function() {
+      box = m.rectangle(32, 32, "cyan", "white", 4, 32, 32)
+      box.rotation = 0.5
+
+      ball = m.circle(21, "Plum", "PowderBlue", 8, 95, 45)
+      ball.interactive = true
+      ball.press = function() {
+        let colors = ["Gold", "Lavender", "Crimson", "DarkSeaGreen"]
+        ball.fillStyle = colors[m.utils.randomInt(0, 3)]
+        ball.strokeStyle = colors[m.utils.randomInt(0, 3)]
+      }
+
+      rocket = m.sprite("rocket", 50, 50)
+      m.stage.putCenter(rocket, 0, 40)
+
+      starFrame = m.frame("platforms", 32, 0, 32, 32)
+      star = m.sprite(starFrame)
+
+      message = m.text("Hello World!", "14px puzzler", "white", 80, 10)
+
+      pointerDisplay = m.text("", "8px PetMe64", "white", 10, 235);
+
+      line = m.line("Yellow", 4, 162, 52, 220, 94)
+      line.angleA = 0
+      line.angleB = 0
+
+      m.state.start('play')
+    })
+    
+    m.state.add('play', function() {
+      box.rotation += 0.01
+
+      m.utils.followEase(star, m.pointer, 0.1)
+
+      rocket.rotation = m.utils.angle(rocket, star)
+
+      pointerDisplay.content = "pointer.x: " + m.pointer.x + " " + "pointer.y: " + m.pointer.y
+
+      line.angleA += 0.02
+      const rotatingA = m.utils.rotateAroundPoint(162, 52, 10, 10, line.angleA)
+      line.x1 = rotatingA.x
+      line.y1 = rotatingA.y
+
+      line.angleB -= 0.03
+      const rotatingB = m.utils.rotateAroundPoint(220, 94, 10, 10, line.angleB)
+      line.x2 = rotatingB.x
+      line.y2 = rotatingB.y
+    })
+    
+    m.start()
+  </script>
+</body>
+</html>

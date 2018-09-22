@@ -1,6 +1,6 @@
-import baseObject from './baseObject'
+import BaseObject from './baseObject'
 
-export default class Group extends baseObject {
+export default class Group extends BaseObject {
   constructor(...spritesToGroup) {
     super()
     if (spritesToGroup && spritesToGroup.length > 0 ) {

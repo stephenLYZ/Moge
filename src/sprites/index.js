@@ -4,6 +4,7 @@ import Line from './line'
 import Text from './text'
 import Group from './group'
 import Stage from './stage'
+import Sprite from './sprite'
 
 export {
   Circle,
@@ -11,5 +12,6 @@ export {
   Line,
   Text,
   Group,
-  Stage
+  Stage,
+  Sprite
 }

@@ -25,6 +25,7 @@
     "webpack-dev-server": "^3.1.4"
   },
   "scripts": {
+    "start": "webpack --config _develop/webpack.config.js -w",
     "build": "webpack --config _develop/webpack.config.js",
     "test": "npm run build; karma start _develop/karma.config.js"
   },

@@ -14,43 +14,46 @@ export default class Loader {
 
   load(sources) {
     console.log("Loading assets...")
-    this.toLoad = sources.length
-    sources.forEach((source) => {
-      let extension = source.split('.').pop()
+    this.toLoad = Object.keys(sources).length
+    for (const key in sources) {
+      if (sources.hasOwnProperty(key)) {
+        const source = sources[key];
+        let extension = source.split('.').pop()
 
-      // Load Image
-      if (imageExtensions.indexOf(extension) > -1) {
-        let image = new Image()
-        image.onLoad = () => {
-          image.name = source
-          this.assets[image.name] = {
-            source: image,
-            frame: {
-              x: 0,
-              y: 0,
-              w: image.width,
-              h: image.height
+        // Load Image
+        if (imageExtensions.indexOf(extension) > -1) {
+          let image = new Image()
+          image.onload = () => {
+            this.assets[key] = {
+              source: image,
+              frame: {
+                x: 0,
+                y: 0,
+                w: image.width,
+                h: image.height
+              }
             }
+            console.log("Loading assets success")
+            this.loadHandler()
           }
-          this.loadHandler()
-        }
-        image.src = source
-      } else if (fontExtensions.indexOf(extension) > -1) {
-        let fontFamily = source.split("/").pop().split(".")[0]
-        let newStyle = document.createElement('style')
-        let fontFace = "@font-face {font-family: '" + fontFamily + "'; src: url('" + source + "');}"
+          image.src = source
+        } else if (fontExtensions.indexOf(extension) > -1) {
+          let fontFamily = source.split("/").pop().split(".")[0]
+          let newStyle = document.createElement('style')
+          let fontFace = "@font-face {font-family: '" + fontFamily + "'; src: url('" + source + "');}"
 
-        newStyle.appendChild(document.createTextNode(fontFace))
-        document.head.appendChild(newStyle)
-        this.loadHandler()
-      } else if (audioExtensions.indexOf(extension) > -1) {
-        // Todo
-      } else if (jsonExtensions.indexOf(extension) > -1) {
-        // Todo
-      } else {
-        throw new Error('File type not recognized: ' + source)
+          newStyle.appendChild(document.createTextNode(fontFace))
+          document.head.appendChild(newStyle)
+          this.loadHandler()
+        } else if (audioExtensions.indexOf(extension) > -1) {
+          // Todo
+        } else if (jsonExtensions.indexOf(extension) > -1) {
+          // Todo
+        } else {
+          throw new Error('File type not recognized: ' + source)
+        }
       }
-    })
+    }
   }
 
   loadHandler() {

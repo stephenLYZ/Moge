@@ -19,7 +19,6 @@ export default class Line extends BaseObject{
     ctx.beginPath()
     ctx.moveTo(this.x1, this.y1)
     ctx.lineTo(this.x2, this.y2)
-    //ctx.closePath()
     if (this.strokeStyle !== "none") ctx.stroke()
   }
 }
